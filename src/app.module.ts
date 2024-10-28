@@ -3,9 +3,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { JwtConfigModule } from './config/jwt-config/jwt-config.module';
 import { PrismaModule } from './database/prisma/prisma.module';
+import { CustomerAuthModule } from './modules/customer-auth/customer-auth.module';
+import { EmployeeAuthModule } from './modules/employee-auth/employee-auth.module';
 
 @Module({
-  imports: [JwtConfigModule, PrismaModule],
+  imports: [JwtConfigModule, PrismaModule, CustomerAuthModule, EmployeeAuthModule],
   controllers: [AppController],
   providers: [AppService],
 })
