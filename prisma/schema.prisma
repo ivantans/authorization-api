@@ -14,35 +14,36 @@ datasource db {
 }
 
 model Customer {
-  id            Int             @id @map("id")
-  email         String          @unique @map("email")
-  password      String          @map("password")
-  CustomerRoles CustomerRoles[]
+  id              Int              @id @default(autoincrement()) @map("id")
+  email           String           @unique @map("email")
+  password        String           @map("password")
+  customerRoles   CustomerRoles[]
+  CustomerSession CustomerSession?
 
   @@map("customers")
 }
 
 model Employee {
-  id            Int             @id @map("id")
-  email         String          @unique @map("email")
-  password      String          @map("password")
-  EmployeeRoles EmployeeRoles[]
+  id            Int              @id @default(autoincrement()) @map("id")
+  email         String           @unique @map("email")
+  password      String           @map("password")
+  employeeRoles EmployeeRoles[]
+  session       EmployeeSession?
 
   @@map("employees")
 }
 
 model Role {
-  id          Int     @id @map("id")
+  id          Int     @id @default(autoincrement()) @map("id")
   name        String  @unique @map("name")
   description String? @map("description")
 
-  EmployeeRoles EmployeeRoles[]
-  CustomerRoles CustomerRoles[]
+  employeeRoles EmployeeRoles[]
+  customerRoles CustomerRoles[]
 
   @@map("roles")
 }
 
-// Model untuk pivot EmployeeRoles (automatically handled by Prisma for many-to-many)
 model EmployeeRoles {
   employeeId Int @map("employee_id")
   roleId     Int @map("role_id")
@@ -54,7 +55,6 @@ model EmployeeRoles {
   @@map("employee_roles")
 }
 
-// Model untuk pivot CustomerRoles (automatically handled by Prisma for many-to-many)
 model CustomerRoles {
   customerId Int @map("customer_id")
   roleId     Int @map("role_id")
@@ -64,4 +64,41 @@ model CustomerRoles {
 
   @@id([customerId, roleId]) // Composite primary key
   @@map("customer_roles")
+}
+
+model EmployeeSession {
+  id           Int      @id @default(autoincrement())
+  employeeId   Int      @unique @map("employee_id")
+  userAgentId  Int      @map("user_agent_id")
+  accessToken  String   @map("access_token")
+  refreshToken String   @map("refresh_token")
+  lastLogin    DateTime @default(now()) @map("last_login")
+
+  userAgent UserAgent @relation(fields: [userAgentId], references: [id])
+  employee  Employee? @relation(fields: [employeeId], references: [id])
+
+  @@map("employee_sessions")
+}
+
+model CustomerSession {
+  id           Int      @id @default(autoincrement())
+  customerId   Int      @unique @map("customer_id")
+  userAgentId  Int      @map("user_agent_id")
+  accessToken  String   @map("access_token")
+  refreshToken String   @map("refresh_token")
+  lastLogin    DateTime @default(now()) @map("last_login")
+
+  userAgent UserAgent @relation(fields: [userAgentId], references: [id])
+  customer  Customer? @relation(fields: [customerId], references: [id])
+
+  @@map("customer_sessions")
+}
+
+model UserAgent {
+  id              Int               @id @default(autoincrement())
+  ua              String
+  session         EmployeeSession[]
+  customerSession CustomerSession[]
+
+  @@map("user_agents")
 }
