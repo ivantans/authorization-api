@@ -5,10 +5,17 @@ import { JwtConfigModule } from './config/jwt-config/jwt-config.module';
 import { PrismaModule } from './database/prisma/prisma.module';
 import { CustomerAuthModule } from './modules/customer-auth/customer-auth.module';
 import { EmployeeAuthModule } from './modules/employee-auth/employee-auth.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [JwtConfigModule, PrismaModule, CustomerAuthModule, EmployeeAuthModule],
+  imports: [
+    JwtConfigModule,
+    PrismaModule,
+    CustomerAuthModule,
+    EmployeeAuthModule,
+    ConfigModule.forRoot()
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
