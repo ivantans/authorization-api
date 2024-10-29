@@ -7,14 +7,18 @@ import { UAParser } from 'ua-parser-js';
 export class UserAgentMiddleware implements NestMiddleware {
   constructor(private readonly prisma: PrismaService) { }
   async use(req: Request, res: Response, next: () => void) {
-    const uaParser = new UAParser()
-    const uaResult = uaParser.setUA(req.headers['user-agent']).getUA();
-    const ua = await this.prisma.userAgent.upsert({
-      where: { ua: uaResult },
-      update: {},
-      create: { ua: uaResult }
-    })
-    req['userAgentId'] = ua.id;
-    next();
+    try {
+      const uaParser = new UAParser()
+      const uaResult = uaParser.setUA(req.headers['user-agent']).getUA();
+      const ua = await this.prisma.userAgent.upsert({
+        where: { ua: uaResult },
+        update: {},
+        create: { ua: uaResult }
+      })
+      req['userAgentId'] = ua.id;
+      next();
+    } catch (e) {
+      throw e
+    }
   }
 }
