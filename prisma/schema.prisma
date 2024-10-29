@@ -96,7 +96,7 @@ model CustomerSession {
 
 model UserAgent {
   id              Int               @id @default(autoincrement())
-  ua              String
+  ua              String            @unique
   session         EmployeeSession[]
   customerSession CustomerSession[]
 
