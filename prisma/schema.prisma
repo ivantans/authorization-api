@@ -18,7 +18,9 @@ model Customer {
   email           String           @unique @map("email")
   password        String           @map("password")
   customerRoles   CustomerRoles[]
-  CustomerSession CustomerSession?
+  customerSession CustomerSession?
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt() @map("updated_at")
 
   @@map("customers")
 }
@@ -29,14 +31,18 @@ model Employee {
   password      String           @map("password")
   employeeRoles EmployeeRoles[]
   session       EmployeeSession?
+  updatedAt     DateTime         @updatedAt() @map("updated_at")
+  createdAt     DateTime         @default(now()) @map("created_at")
 
   @@map("employees")
 }
 
 model Role {
-  id          Int     @id @default(autoincrement()) @map("id")
-  name        String  @unique @map("name")
-  description String? @map("description")
+  id          Int      @id @default(autoincrement()) @map("id")
+  name        String   @unique @map("name")
+  description String?  @map("description")
+  updatedAt   DateTime @updatedAt() @map("updated_at")
+  createdAt   DateTime @default(now()) @map("created_at")
 
   employeeRoles EmployeeRoles[]
   customerRoles CustomerRoles[]
@@ -45,8 +51,10 @@ model Role {
 }
 
 model EmployeeRoles {
-  employeeId Int @map("employee_id")
-  roleId     Int @map("role_id")
+  employeeId Int      @map("employee_id")
+  roleId     Int      @map("role_id")
+  updatedAt  DateTime @updatedAt() @map("updated_at")
+  createdAt  DateTime @default(now()) @map("created_at")
 
   employee Employee @relation(fields: [employeeId], references: [id])
   role     Role     @relation(fields: [roleId], references: [id])
@@ -56,40 +64,43 @@ model EmployeeRoles {
 }
 
 model CustomerRoles {
-  customerId Int @map("customer_id")
-  roleId     Int @map("role_id")
-
-  customer Customer @relation(fields: [customerId], references: [id])
-  role     Role     @relation(fields: [roleId], references: [id])
+  customerId Int      @map("customer_id")
+  roleId     Int      @map("role_id")
+  updatedAt  DateTime @updatedAt() @map("updated_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  customer   Customer @relation(fields: [customerId], references: [id])
+  role       Role     @relation(fields: [roleId], references: [id])
 
   @@id([customerId, roleId]) // Composite primary key
   @@map("customer_roles")
 }
 
 model EmployeeSession {
-  id           Int      @id @default(autoincrement())
-  employeeId   Int      @unique @map("employee_id")
-  userAgentId  Int      @map("user_agent_id")
-  accessToken  String   @map("access_token")
-  refreshToken String   @map("refresh_token")
-  lastLogin    DateTime @default(now()) @map("last_login")
-
-  userAgent UserAgent @relation(fields: [userAgentId], references: [id])
-  employee  Employee? @relation(fields: [employeeId], references: [id])
+  id           Int       @id @default(autoincrement())
+  employeeId   Int       @unique @map("employee_id")
+  userAgentId  Int       @map("user_agent_id")
+  accessToken  String    @map("access_token")
+  refreshToken String    @map("refresh_token")
+  lastLogin    DateTime  @default(now()) @map("last_login")
+  updatedAt    DateTime  @updatedAt() @map("updated_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  userAgent    UserAgent @relation(fields: [userAgentId], references: [id])
+  employee     Employee? @relation(fields: [employeeId], references: [id])
 
   @@map("employee_sessions")
 }
 
 model CustomerSession {
-  id           Int      @id @default(autoincrement())
-  customerId   Int      @unique @map("customer_id")
-  userAgentId  Int      @map("user_agent_id")
-  accessToken  String   @map("access_token")
-  refreshToken String   @map("refresh_token")
-  lastLogin    DateTime @default(now()) @map("last_login")
-
-  userAgent UserAgent @relation(fields: [userAgentId], references: [id])
-  customer  Customer? @relation(fields: [customerId], references: [id])
+  id           Int       @id @default(autoincrement())
+  customerId   Int       @unique @map("customer_id")
+  userAgentId  Int       @map("user_agent_id")
+  accessToken  String    @map("access_token")
+  refreshToken String    @map("refresh_token")
+  lastLogin    DateTime  @default(now()) @map("last_login")
+  updatedAt    DateTime  @updatedAt() @map("updated_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  userAgent    UserAgent @relation(fields: [userAgentId], references: [id])
+  customer     Customer? @relation(fields: [customerId], references: [id])
 
   @@map("customer_sessions")
 }
@@ -97,8 +108,10 @@ model CustomerSession {
 model UserAgent {
   id              Int               @id @default(autoincrement())
   ua              String            @unique
-  session         EmployeeSession[]
+  employeeSession EmployeeSession[]
   customerSession CustomerSession[]
+  updatedAt       DateTime          @updatedAt() @map("updated_at")
+  createdAt       DateTime          @default(now()) @map("created_at")
 
   @@map("user_agents")
 }

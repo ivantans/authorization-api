@@ -3,6 +3,8 @@ CREATE TABLE "customers" (
     "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "customers_pkey" PRIMARY KEY ("id")
 );
@@ -12,6 +14,8 @@ CREATE TABLE "employees" (
     "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "employees_pkey" PRIMARY KEY ("id")
 );
@@ -21,6 +25,8 @@ CREATE TABLE "roles" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "roles_pkey" PRIMARY KEY ("id")
 );
@@ -29,6 +35,8 @@ CREATE TABLE "roles" (
 CREATE TABLE "employee_roles" (
     "employee_id" INTEGER NOT NULL,
     "role_id" INTEGER NOT NULL,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "employee_roles_pkey" PRIMARY KEY ("employee_id","role_id")
 );
@@ -37,6 +45,8 @@ CREATE TABLE "employee_roles" (
 CREATE TABLE "customer_roles" (
     "customer_id" INTEGER NOT NULL,
     "role_id" INTEGER NOT NULL,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "customer_roles_pkey" PRIMARY KEY ("customer_id","role_id")
 );
@@ -49,6 +59,8 @@ CREATE TABLE "employee_sessions" (
     "access_token" TEXT NOT NULL,
     "refresh_token" TEXT NOT NULL,
     "last_login" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "employee_sessions_pkey" PRIMARY KEY ("id")
 );
@@ -61,6 +73,8 @@ CREATE TABLE "customer_sessions" (
     "access_token" TEXT NOT NULL,
     "refresh_token" TEXT NOT NULL,
     "last_login" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "customer_sessions_pkey" PRIMARY KEY ("id")
 );
@@ -69,6 +83,8 @@ CREATE TABLE "customer_sessions" (
 CREATE TABLE "user_agents" (
     "id" SERIAL NOT NULL,
     "ua" TEXT NOT NULL,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "user_agents_pkey" PRIMARY KEY ("id")
 );
@@ -87,6 +103,9 @@ CREATE UNIQUE INDEX "employee_sessions_employee_id_key" ON "employee_sessions"("
 
 -- CreateIndex
 CREATE UNIQUE INDEX "customer_sessions_customer_id_key" ON "customer_sessions"("customer_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "user_agents_ua_key" ON "user_agents"("ua");
 
 -- AddForeignKey
 ALTER TABLE "employee_roles" ADD CONSTRAINT "employee_roles_employee_id_fkey" FOREIGN KEY ("employee_id") REFERENCES "employees"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
