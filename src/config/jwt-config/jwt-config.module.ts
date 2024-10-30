@@ -11,6 +11,8 @@ import { JwtModule } from '@nestjs/jwt';
 				secret: configService.get<string>("JWT_SECRET"),
 			}),
 		})
-	]
+	],
+	providers: [JwtConfigModule],
+	exports: [JwtModule]
 })
 export class JwtConfigModule { }
