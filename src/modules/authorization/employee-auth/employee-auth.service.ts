@@ -8,7 +8,7 @@ import { SessionData } from './interface/session-data.interface';
 import { GenerateRefreshTokenDto } from './dto/generate-refresh-token.dto';
 import { AccessTokenData } from './interface/access-token-data.interface';
 import { RegisterDto } from './dto/register.dto';
-import { loginDto } from './dto/login.dto';
+import { loginDto } from '../common/dto/login.dto';
 
 @Injectable()
 export class EmployeeAuthService {

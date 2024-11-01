@@ -7,7 +7,7 @@ import { GenerateRefreshTokenDto } from './dto/generate-refresh-token.dto';
 import { AccessTokenData } from './interface/access-token-data.interface';
 import { RegisterDto } from './dto/register.dto';
 import { EmployeeData } from './interface/employee-data.interface';
-import { loginDto } from './dto/login.dto';
+import { loginDto } from '../common/dto/login.dto';
 
 @Controller({
   version: "1",
