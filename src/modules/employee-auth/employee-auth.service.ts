@@ -1,5 +1,4 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { loginDto } from 'src/common/dto/login.dto';
 import { UserAgentRequest } from 'src/common/interface/user-agent-request.interface';
 import { PrismaService } from 'src/database/prisma/prisma.service';
 import * as bcryptjs from "bcryptjs"
@@ -9,6 +8,7 @@ import { SessionData } from './interface/session-data.interface';
 import { GenerateRefreshTokenDto } from './dto/generate-refresh-token.dto';
 import { AccessTokenData } from './interface/access-token-data.interface';
 import { RegisterDto } from './dto/register.dto';
+import { loginDto } from './dto/login.dto';
 
 @Injectable()
 export class EmployeeAuthService {
@@ -180,7 +180,7 @@ export class EmployeeAuthService {
         }
       });
 
-      if(isEmailExist){
+      if (isEmailExist) {
         throw new ConflictException("Another account is using the same email.")
       }
       const newEmployee = await this.prisma.employee.create({

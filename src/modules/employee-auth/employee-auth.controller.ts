@@ -1,13 +1,13 @@
-import { BadRequestException, Body, Controller, HttpCode, HttpStatus, Post, Req } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post, Req } from '@nestjs/common';
 import { EmployeeAuthService } from './employee-auth.service';
 import { UserAgentRequest } from 'src/common/interface/user-agent-request.interface';
-import { loginDto } from 'src/common/dto/login.dto';
 import { ApiResponse } from 'src/common/interface/api-response.interface';
 import { LoginResponse } from './interface/login-response.interface';
 import { GenerateRefreshTokenDto } from './dto/generate-refresh-token.dto';
 import { AccessTokenData } from './interface/access-token-data.interface';
 import { RegisterDto } from './dto/register.dto';
 import { EmployeeData } from './interface/employee-data.interface';
+import { loginDto } from './dto/login.dto';
 
 @Controller({
   version: "1",
