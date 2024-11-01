@@ -13,14 +13,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum CustomerEmailStatus {
+  VERIFIED
+  UNVERIFIED
+}
+
 model Customer {
-  id              Int              @id @default(autoincrement()) @map("id")
-  email           String           @unique @map("email")
-  password        String           @map("password")
+  id              Int                 @id @default(autoincrement()) @map("id")
+  email           String              @unique @map("email")
+  password        String              @map("password")
   customerRoles   CustomerRoles[]
   customerSession CustomerSession?
-  createdAt       DateTime         @default(now()) @map("created_at")
-  updatedAt       DateTime         @updatedAt() @map("updated_at")
+  emailStatus     CustomerEmailStatus @default(UNVERIFIED) @map("email_status")
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt() @map("updated_at")
 
   @@map("customers")
 }
