@@ -3,11 +3,11 @@ import { EmployeeAuthService } from './employee-auth.service';
 import { UserAgentRequest } from 'src/common/interface/user-agent-request.interface';
 import { ApiResponse } from 'src/common/interface/api-response.interface';
 import { LoginResponse } from './interface/login-response.interface';
-import { GenerateRefreshTokenDto } from './dto/generate-refresh-token.dto';
 import { AccessTokenData } from './interface/access-token-data.interface';
 import { RegisterDto } from './dto/register.dto';
 import { EmployeeData } from './interface/employee-data.interface';
 import { loginDto } from '../common/dto/login.dto';
+import { GenerateRefreshTokenDto } from '../common/dto/generate-refresh-token.dto';
 
 @Controller({
   version: "1",
