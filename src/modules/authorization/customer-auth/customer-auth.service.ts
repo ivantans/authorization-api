@@ -6,6 +6,8 @@ import { PrismaService } from 'src/database/prisma/prisma.service';
 import { UserAgentRequest } from 'src/common/interface/user-agent-request.interface';
 import { UserSessionData } from '../common/interface/session-data.interface';
 import { JwtService } from '@nestjs/jwt';
+import { RefreshTokenDto } from '../common/dto/refresh-token.dto';
+import { AccessTokenData } from '../common/interface/access-token-data.interface';
 
 @Injectable()
 export class CustomerAuthService {
@@ -111,6 +113,63 @@ export class CustomerAuthService {
       }
     } catch (e) {
       throw e
+    }
+  }
+
+  async refreshToken(req: UserAgentRequest, refreshTokenDto: RefreshTokenDto): Promise<AccessTokenData> {
+    try {
+      const userAgentId = req.userAgentId;
+
+      const session = await this.prisma.customerSession.findUnique({
+        where: {
+          userAgentId: userAgentId,
+          refreshToken: refreshTokenDto.refreshToken
+        }
+      });
+
+      if (!session) {
+        throw new UnauthorizedException("The provided refresh token is invalid or does not match the current session.");
+      }
+
+      const customerData = await this.prisma.customer.findUnique({
+        where: {
+          id: session.customerId
+        },
+        include: {
+          customerRoles: {
+            include: {
+              role: {
+                select: { name: true, }
+              }
+            }
+          }
+        }
+      });
+
+      const accessTokenPayload = {
+        sub: customerData.id,
+        email: customerData.email,
+        accountType: "CUSTOMER",
+        roles: customerData.customerRoles.map(roleItem => roleItem.role.name),
+        tokenType: "ACCESS_TOKEN"
+      }
+
+      const accessToken = await this.jwtService.signAsync(accessTokenPayload, { expiresIn: "15m" });
+
+      const updateSession = await this.prisma.customerSession.update({
+        where: {
+          customerId: customerData.id
+        },
+        data: {
+          accessToken: accessToken
+        }
+      })
+
+      return {
+        accessToken: updateSession.accessToken
+      }
+    } catch (e) {
+      throw e;
     }
   }
 }
