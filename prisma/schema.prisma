@@ -101,7 +101,7 @@ model CustomerSession {
   customerId   Int       @unique @map("customer_id")
   userAgentId  Int       @map("user_agent_id")
   accessToken  String    @map("access_token")
-  refreshToken String    @map("refresh_token")
+  refreshToken String    @map("refresh_token") @unique
   lastLogin    DateTime  @default(now()) @map("last_login")
   updatedAt    DateTime  @updatedAt() @map("updated_at")
   createdAt    DateTime  @default(now()) @map("created_at")
