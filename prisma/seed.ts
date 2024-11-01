@@ -12,6 +12,7 @@ async function main() {
 			{ name: 'SUBSCRIPTION', description: 'Subscription Customer' },
 			{ name: 'PREMIUM_CUSTOMER', description: 'Premium Customer' },
 			{ name: 'TRIAL_MEMBER', description: 'Customer with trial access' },
+			{ name: 'BASIC', description: 'None Role' },
 		],
 		skipDuplicates: true
 	})
