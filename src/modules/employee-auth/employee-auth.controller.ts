@@ -1,9 +1,11 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Req } from '@nestjs/common';
+import { BadRequestException, Body, Controller, HttpCode, HttpStatus, Post, Req } from '@nestjs/common';
 import { EmployeeAuthService } from './employee-auth.service';
 import { UserAgentRequest } from 'src/common/interface/user-agent-request.interface';
 import { loginDto } from 'src/common/dto/login.dto';
 import { ApiResponse } from 'src/common/interface/api-response.interface';
 import { LoginResponse } from './interface/login-response.interface';
+import { GenerateRefreshTokenDto } from './dto/generate-refresh-token.dto';
+import { AccessTokenData } from './interface/access-token-data.interface';
 
 @Controller({
   version: "1",
@@ -30,21 +32,30 @@ export class EmployeeAuthController {
       throw e
     }
   }
-  @Post()
-  async refreshToken() {
+  @Post("refresh-token")
+  @HttpCode(200)
+  async generateRefreshToken(
+    @Req() req: UserAgentRequest,
+    @Body() generateRefreshTokenDto: GenerateRefreshTokenDto
+  ): Promise<ApiResponse<AccessTokenData>> {
     try {
+      const newAccessToken = await this.employeeAuthService.generateRefreshToken(req, generateRefreshTokenDto);
       return {
-        code: 200
+        statusCode: HttpStatus.OK,
+        statusMessage: HttpStatus[200],
+        message: "Login Success",
+        data: newAccessToken
       }
     }
     catch (e) {
+      console.error(e)
       throw e;
     }
   }
 
   async register() {
     try {
-
+      
     } catch (e) {
       throw e;
     }

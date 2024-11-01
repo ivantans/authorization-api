@@ -6,6 +6,8 @@ import * as bcryptjs from "bcryptjs"
 import { EmployeeData } from './interface/employee-data.interface';
 import { JwtService } from '@nestjs/jwt';
 import { SessionData } from './interface/session-data.interface';
+import { GenerateRefreshTokenDto } from './dto/generate-refresh-token.dto';
+import { AccessTokenData } from './interface/access-token-data.interface';
 
 @Injectable()
 export class EmployeeAuthService {
@@ -117,4 +119,55 @@ export class EmployeeAuthService {
 
   }
 
+  async generateRefreshToken(req: UserAgentRequest, generateRefreshTokenDto: GenerateRefreshTokenDto): Promise<AccessTokenData> {
+    try {
+      const userAgentId = req.userAgentId;
+      const isRefreshTokenValid = await this.prisma.employeeSession.findFirst({
+        where: {
+          userAgentId: userAgentId,
+          refreshToken: generateRefreshTokenDto.refreshToken
+        },
+      })
+
+      if (!isRefreshTokenValid) {
+        throw new UnauthorizedException("The provided refresh token is invalid or does not match the current session.");
+      }
+
+      const employeeData = await this.prisma.employee.findUnique({
+        where: { id: isRefreshTokenValid.employeeId },
+        include: {
+          employeeRoles: {
+            select: {
+              role: {
+                select: { name: true }
+              }
+            }
+          }
+        }
+      });
+
+      const accessTokenPayload = {
+        sub: employeeData.id,
+        email: employeeData.email,
+        accountType: "EMPLOYEE",
+        roles: employeeData.employeeRoles.map(roleItem => roleItem.role.name),
+        tokenType: "ACCESS_TOKEN"
+      }
+
+      const accessToken = await this.jwtService.signAsync(accessTokenPayload, { expiresIn: "15m" });
+
+
+      const updateSession = await this.prisma.employeeSession.update({
+        where: {
+          employeeId: employeeData.id,
+        },
+        data: {
+          accessToken: accessToken
+        }
+      })
+      return {accessToken};
+    } catch (e) {
+      throw e;
+    }
+  }
 }

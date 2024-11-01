@@ -10,12 +10,19 @@ import { UserAgentMiddleware } from 'src/common/middleware/user-agent/user-agent
   providers: [EmployeeAuthService],
   controllers: [EmployeeAuthController]
 })
-export class EmployeeAuthModule implements NestModule{
+export class EmployeeAuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(UserAgentMiddleware).forRoutes({
-      path: "employee-auth/login",
-      version: "1",
-      method: RequestMethod.POST
-    })
+    consumer.apply(UserAgentMiddleware).forRoutes(
+      {
+        path: "employee-auth/login",
+        version: "1",
+        method: RequestMethod.POST
+      },
+      {
+        path: "employee-auth/refresh-token",
+        version: "1",
+        method: RequestMethod.POST
+      }
+    );
   }
 }
