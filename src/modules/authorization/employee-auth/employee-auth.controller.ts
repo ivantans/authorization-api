@@ -3,11 +3,11 @@ import { EmployeeAuthService } from './employee-auth.service';
 import { UserAgentRequest } from 'src/common/interface/user-agent-request.interface';
 import { ApiResponse } from 'src/common/interface/api-response.interface';
 import { LoginResponse } from './interface/login-response.interface';
-import { AccessTokenData } from './interface/access-token-data.interface';
 import { RegisterDto } from './dto/register.dto';
 import { EmployeeData } from './interface/employee-data.interface';
 import { loginDto } from '../common/dto/login.dto';
-import { GenerateRefreshTokenDto } from '../common/dto/generate-refresh-token.dto';
+import { RefreshTokenDto } from '../common/dto/refresh-token.dto';
+import { AccessTokenData } from '../common/interface/access-token-data.interface';
 
 @Controller({
   version: "1",
@@ -36,12 +36,12 @@ export class EmployeeAuthController {
   }
   @Post("refresh-token")
   @HttpCode(200)
-  async generateRefreshToken(
+  async refreshToken(
     @Req() req: UserAgentRequest,
-    @Body() generateRefreshTokenDto: GenerateRefreshTokenDto
+    @Body() refreshTokenDto: RefreshTokenDto
   ): Promise<ApiResponse<AccessTokenData>> {
     try {
-      const newAccessToken = await this.employeeAuthService.generateRefreshToken(req, generateRefreshTokenDto);
+      const newAccessToken = await this.employeeAuthService.refreshToken(req, refreshTokenDto);
       return {
         statusCode: HttpStatus.OK,
         statusMessage: HttpStatus[200],
