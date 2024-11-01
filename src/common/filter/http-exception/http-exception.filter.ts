@@ -13,14 +13,18 @@ export class HttpExceptionFilter implements ExceptionFilter {
       return response.status(status).json({
         code: status,
         status: HttpStatus[status],
-        message: exception.message
+        message: exception.message,
+        path: request.url,
+        timestamp: new Date().toISOString()
       })
     }
 
     return response.status(500).json({
       statusCode: 500,
       statusMessage: HttpStatus[500],
-      message: "Internal Server Error"
+      message: "Internal Server Error",
+      path: request.url,
+      timestamp: new Date().toISOString()
     })
   }
 }
