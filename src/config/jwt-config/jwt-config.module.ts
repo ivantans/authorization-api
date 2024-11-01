@@ -12,7 +12,6 @@ import { JwtModule } from '@nestjs/jwt';
 			}),
 		})
 	],
-	providers: [JwtConfigModule],
 	exports: [JwtModule]
 })
 export class JwtConfigModule { }
