@@ -6,6 +6,8 @@ import { ApiResponse } from 'src/common/interface/api-response.interface';
 import { LoginResponse } from './interface/login-response.interface';
 import { GenerateRefreshTokenDto } from './dto/generate-refresh-token.dto';
 import { AccessTokenData } from './interface/access-token-data.interface';
+import { RegisterDto } from './dto/register.dto';
+import { EmployeeData } from './interface/employee-data.interface';
 
 @Controller({
   version: "1",
@@ -53,9 +55,17 @@ export class EmployeeAuthController {
     }
   }
 
-  async register() {
+  @Post("register")
+  @HttpCode(200)
+  async register(@Body() registerDto: RegisterDto): Promise<ApiResponse<EmployeeData>> {
     try {
-      
+      const newEmployee = await this.employeeAuthService.register(registerDto);
+      return {
+        statusCode: HttpStatus.OK,
+        statusMessage: HttpStatus[200],
+        message: "Register Success",
+        data: newEmployee
+      }
     } catch (e) {
       throw e;
     }

@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { loginDto } from 'src/common/dto/login.dto';
 import { UserAgentRequest } from 'src/common/interface/user-agent-request.interface';
 import { PrismaService } from 'src/database/prisma/prisma.service';
@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { SessionData } from './interface/session-data.interface';
 import { GenerateRefreshTokenDto } from './dto/generate-refresh-token.dto';
 import { AccessTokenData } from './interface/access-token-data.interface';
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class EmployeeAuthService {
@@ -165,9 +166,56 @@ export class EmployeeAuthService {
           accessToken: accessToken
         }
       })
-      return {accessToken};
+      return { accessToken };
     } catch (e) {
       throw e;
+    }
+  }
+
+  async register(registerDto: RegisterDto): Promise<EmployeeData> {
+    try {
+      const isEmailExist = await this.prisma.employee.findUnique({
+        where: {
+          email: registerDto.email
+        }
+      });
+
+      if(isEmailExist){
+        throw new ConflictException("Another account is using the same email.")
+      }
+      const newEmployee = await this.prisma.employee.create({
+        data: {
+          email: registerDto.email,
+          password: await bcryptjs.hash(registerDto.password, 12),
+          employeeRoles: {
+            create: {
+              role: {
+                connect: { name: "BASIC" }
+              }
+            }
+          }
+        },
+        include: {
+          employeeRoles: {
+            include: {
+              role: true
+            }
+          }
+        }
+      });
+      return {
+        id: newEmployee.id,
+        email: newEmployee.email,
+        roles: newEmployee.employeeRoles.map(roleItem => ({
+          id: roleItem.role.id,
+          name: roleItem.role.name
+        })),
+        updatedAt: newEmployee.updatedAt,
+        createdAt: newEmployee.createdAt,
+
+      }
+    } catch (e) {
+      throw e
     }
   }
 }
