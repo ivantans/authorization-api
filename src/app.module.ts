@@ -6,6 +6,8 @@ import { PrismaModule } from './database/prisma/prisma.module';
 import { CustomerAuthModule } from './modules/authorization/customer-auth/customer-auth.module';
 import { EmployeeAuthModule } from './modules/authorization/employee-auth/employee-auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { CustomerModule } from './modules/customer/customer.module';
+import { EmployeeModule } from './modules/employee/employee.module';
 
 @Module({
   imports: [
@@ -13,7 +15,9 @@ import { ConfigModule } from '@nestjs/config';
     PrismaModule,
     CustomerAuthModule,
     EmployeeAuthModule,
-    ConfigModule.forRoot()
+    ConfigModule.forRoot(),
+    CustomerModule,
+    EmployeeModule
   ],
   controllers: [AppController],
   providers: [AppService],
