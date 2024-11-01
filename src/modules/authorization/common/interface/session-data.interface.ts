@@ -1,4 +1,4 @@
-export interface SessionData {
+export interface UserSessionData {
   accessToken: string;
   refreshToken: string;
 }

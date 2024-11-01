@@ -4,11 +4,11 @@ import { PrismaService } from 'src/database/prisma/prisma.service';
 import * as bcryptjs from "bcryptjs"
 import { EmployeeData } from './interface/employee-data.interface';
 import { JwtService } from '@nestjs/jwt';
-import { SessionData } from './interface/session-data.interface';
 import { GenerateRefreshTokenDto } from './dto/generate-refresh-token.dto';
 import { AccessTokenData } from './interface/access-token-data.interface';
 import { RegisterDto } from './dto/register.dto';
 import { loginDto } from '../common/dto/login.dto';
+import { UserSessionData } from '../common/interface/session-data.interface';
 
 @Injectable()
 export class EmployeeAuthService {
@@ -62,7 +62,7 @@ export class EmployeeAuthService {
     }
   }
 
-  async upsertSession(accessToken: string, userAgentId: number, refreshToken: string, validatedEmployee: EmployeeData): Promise<SessionData> {
+  async upsertSession(accessToken: string, userAgentId: number, refreshToken: string, validatedEmployee: EmployeeData): Promise<UserSessionData> {
     try {
       const session = await this.prisma.employeeSession.upsert({
         where: {
@@ -86,7 +86,7 @@ export class EmployeeAuthService {
     }
   }
 
-  async generateSession(req: UserAgentRequest, validatedEmployee: EmployeeData): Promise<SessionData> {
+  async generateSession(req: UserAgentRequest, validatedEmployee: EmployeeData): Promise<UserSessionData> {
     try {
 
       const userAgentId: number = req.userAgentId;
