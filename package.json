@@ -29,6 +29,7 @@
     "@nestjs/core": "^10.0.0",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/throttler": "^6.2.1",
     "@prisma/client": "^5.21.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/ua-parser-js": "^0.7.39",
