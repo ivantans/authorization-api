@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import { CustomerModule } from './modules/customer/customer.module';
 import { EmployeeModule } from './modules/employee/employee.module';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { MailModule } from './config/mail/mail.module';
 
 @Module({
   imports: [
@@ -19,15 +20,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
     ConfigModule.forRoot(),
     CustomerModule,
     EmployeeModule,
-    MailerModule.forRoot({
-      transport: {
-        host: process.env.EMAIL_HOST,
-        auth: {
-          user: process.env.EMAIL_USERNAME,
-          pass: process.env.EMAIL_PASSWORD,
-        },
-      }
-    })
+    MailModule
   ],
   controllers: [AppController],
   providers: [AppService],
