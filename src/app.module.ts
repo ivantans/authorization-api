@@ -8,10 +8,10 @@ import { EmployeeAuthModule } from './modules/authorization/employee-auth/employ
 import { ConfigModule } from '@nestjs/config';
 import { CustomerModule } from './modules/customer/customer.module';
 import { EmployeeModule } from './modules/employee/employee.module';
-import { MailModule } from './config/mail/mail.module';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { ThrottlerConfigModule } from './config/throttling/throttler-config.module';
+import { MailerConfigModule } from './config/mail/mailer-config.module';
 
 @Module({
   imports: [
@@ -22,7 +22,7 @@ import { ThrottlerConfigModule } from './config/throttling/throttler-config.modu
     ConfigModule.forRoot({ isGlobal: true }),
     CustomerModule,
     EmployeeModule,
-    MailModule,
+    MailerConfigModule,
     ThrottlerConfigModule
   ],
   controllers: [AppController],
