@@ -8,6 +8,8 @@ import { RefreshTokenDto } from '../common/dto/refresh-token.dto';
 import { AccessTokenData } from '../common/interface/access-token-data.interface';
 import { RegisterDto } from './dto/register.dto';
 import { UnverifiedCustomerData } from './interface/unverified-customer-data.interface';
+import { Throttle } from '@nestjs/throttler';
+import { ResendVerificationLinkDto } from './dto/resend-verification-link-dto';
 
 @Controller({
   path: "customer-auth",
@@ -50,7 +52,7 @@ export class CustomerAuthController {
       throw e;
     }
   }
-
+  @Throttle({default : {limit: 1, ttl: 60000}})
   @Post("register")
   @HttpCode(202)
   async register(@Body() registerDto: RegisterDto): Promise<ApiResponse<UnverifiedCustomerData>> {
@@ -79,6 +81,21 @@ export class CustomerAuthController {
       }
     } catch (e) {
       throw e
+    }
+  }
+
+  @Throttle({default: {limit: 1, ttl: 60000}})
+  @Post("resend-verification")
+  async resendVerificationLink(@Body() resendVerificationLinkDto: ResendVerificationLinkDto) {
+    try {
+      const response = await this.customerAuthService.resendVerificationLink(resendVerificationLinkDto);
+      return {
+        statusCode: HttpStatus.OK,
+        statusMessage: HttpStatus[200],
+        message: "Verification email has been resent. Please check your inbox.",
+      }
+    } catch (e) {
+      throw e;
     }
   }
 }

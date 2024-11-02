@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { loginDto } from '../common/dto/login.dto';
 import { CustomerData } from './interface/customer-data.interface';
 import * as bcryptjs from "bcryptjs";
@@ -12,6 +12,7 @@ import { RegisterDto } from './dto/register.dto';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
 import { UnverifiedCustomerData } from './interface/unverified-customer-data.interface';
+import { ResendVerificationLinkDto } from './dto/resend-verification-link-dto';
 
 @Injectable()
 export class CustomerAuthService {
@@ -215,20 +216,9 @@ export class CustomerAuthService {
       }
 
       const registerToken = await this.jwtService.signAsync(tokenPayload, { expiresIn: "15m" });
-      const appUrl = this.configService.get<string>('APP_URL');
-      const verifyingMessage = `${appUrl}/api/v1/customer-auth/verify-email?token=${registerToken}`
 
-      try {
-        await this.mailerService.sendMail({
-          from: 'AUTHORIZATION API <test123@gmail.com>',
-          to: registerDto.email,
-          subject: "Please Verify Your Account",
-          html: `<p>Click <a href="${verifyingMessage}">here</a> to verify your account.</p>`,
-        });
-      } catch (mailError) {
-        console.error("Failed to send verification email:", mailError);
-        throw new InternalServerErrorException("Unable to send verification email. Please try again later.");
-      }
+      this.sendVerificationLink(registerToken, newCustomer.email);
+
       return {
         id: newCustomer.id,
         email: newCustomer.email,
@@ -262,6 +252,59 @@ export class CustomerAuthService {
           }
         }
       });
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async resendVerificationLink(resendVerificationLinkDto: ResendVerificationLinkDto) {
+    try {
+      const isEmailExist = await this.prisma.customer.findUnique({
+        where: {
+          email: resendVerificationLinkDto.email
+        }
+      })
+
+      if (!isEmailExist) {
+        throw new BadRequestException('User not found');
+      }
+
+      // Cek apakah email sudah diverifikasi
+      if (isEmailExist.emailStatus === 'VERIFIED') {
+        throw new BadRequestException('Email is already verified');
+      }
+
+      const tokenPayload = {
+        sub: isEmailExist.id,
+        email: isEmailExist.email,
+        accountType: "CUSTOMER",
+        tokenType: "VERIFY_USER",
+      }
+
+      const registerToken = await this.jwtService.signAsync(tokenPayload, { expiresIn: "15m" });
+
+      this.sendVerificationLink(registerToken, isEmailExist.email);
+    } catch (e) {
+      throw e
+    }
+  }
+  async sendVerificationLink(registerToken: string, receiverEmail: string) {
+    try {
+      const appUrl = this.configService.get<string>('APP_URL');
+
+      const verifyingMessage = `${appUrl}/api/v1/customer-auth/verify-email?token=${registerToken}`
+
+      try {
+        this.mailerService.sendMail({
+          from: 'AUTHORIZATION API <test123@gmail.com>',
+          to: receiverEmail,
+          subject: "Please Verify Your Account",
+          html: `<p>Click <a href="${verifyingMessage}">here</a> to verify your account.</p>`,
+        });
+      } catch (mailError) {
+        console.error("Failed to send verification email:", mailError);
+        throw new InternalServerErrorException("Unable to send verification email. Please try again later.");
+      }
     } catch (e) {
       throw e;
     }
