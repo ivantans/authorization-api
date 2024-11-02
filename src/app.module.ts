@@ -17,7 +17,7 @@ import { MailModule } from './config/mail/mail.module';
     PrismaModule,
     CustomerAuthModule,
     EmployeeAuthModule,
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true }),
     CustomerModule,
     EmployeeModule,
     MailModule

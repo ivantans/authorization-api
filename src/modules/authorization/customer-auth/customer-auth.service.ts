@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { loginDto } from '../common/dto/login.dto';
 import { CustomerData } from './interface/customer-data.interface';
 import * as bcryptjs from "bcryptjs";
@@ -8,12 +8,18 @@ import { UserSessionData } from '../common/interface/session-data.interface';
 import { JwtService } from '@nestjs/jwt';
 import { RefreshTokenDto } from '../common/dto/refresh-token.dto';
 import { AccessTokenData } from '../common/interface/access-token-data.interface';
+import { RegisterDto } from './dto/register.dto';
+import { MailerService } from '@nestjs-modules/mailer';
+import { ConfigService } from '@nestjs/config';
+import { UnverifiedCustomerData } from './interface/unverified-customer-data.interface';
 
 @Injectable()
 export class CustomerAuthService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly mailerService: MailerService,
+    private readonly configService: ConfigService
   ) { }
 
   async validate(loginDto: loginDto): Promise<CustomerData> {
@@ -168,6 +174,94 @@ export class CustomerAuthService {
       return {
         accessToken: updateSession.accessToken
       }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async register(registerDto: RegisterDto): Promise<UnverifiedCustomerData> {
+    try {
+      const isEmailExist = await this.prisma.customer.findUnique({
+        where: {
+          email: registerDto.email
+        }
+      });
+
+      if (isEmailExist && isEmailExist.emailStatus === "VERIFIED") {
+        throw new ConflictException("Another account is using the same email.")
+      }
+
+      const newCustomer = isEmailExist
+        ? await this.prisma.customer.update({
+          where: {
+            email: registerDto.email
+          },
+          data: {
+            password: await bcryptjs.hash(registerDto.password, 12)
+          }
+        })
+        : await this.prisma.customer.create({
+          data: {
+            email: registerDto.email,
+            password: await bcryptjs.hash(registerDto.password, 12)
+          }
+        })
+
+      const tokenPayload = {
+        sub: newCustomer.id,
+        email: newCustomer.email,
+        accountType: "CUSTOMER",
+        tokenType: "VERIFY_USER",
+      }
+
+      const registerToken = await this.jwtService.signAsync(tokenPayload, { expiresIn: "15m" });
+      const appUrl = this.configService.get<string>('APP_URL');
+      const verifyingMessage = `${appUrl}/api/v1/customer-auth/verify-email?token=${registerToken}`
+
+      try {
+        await this.mailerService.sendMail({
+          from: 'AUTHORIZATION API <test123@gmail.com>',
+          to: registerDto.email,
+          subject: "Please Verify Your Account",
+          html: `<p>Click <a href="${verifyingMessage}">here</a> to verify your account.</p>`,
+        });
+      } catch (mailError) {
+        console.error("Failed to send verification email:", mailError);
+        throw new InternalServerErrorException("Unable to send verification email. Please try again later.");
+      }
+      return {
+        id: newCustomer.id,
+        email: newCustomer.email,
+        emailStatus: newCustomer.emailStatus,
+        updatedAt: newCustomer.updatedAt,
+        createdAt: newCustomer.createdAt,
+      }
+
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async verifyEmail(token: string): Promise<void> {
+    try {
+      if (!token) {
+        throw new UnauthorizedException("Invalid Crendentials");
+      }
+
+      const isTokenValid = await this.jwtService.verifyAsync(token);
+      const updateEmailStatus = await this.prisma.customer.update({
+        where: {
+          id: isTokenValid.sub
+        },
+        data: {
+          emailStatus: "VERIFIED",
+          customerRoles: {
+            create: [
+              { role: { connect: { name: "BASIC" } } }
+            ]
+          }
+        }
+      });
     } catch (e) {
       throw e;
     }

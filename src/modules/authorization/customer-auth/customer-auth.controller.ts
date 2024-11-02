@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query, Req } from '@nestjs/common';
 import { CustomerAuthService } from './customer-auth.service';
 import { ApiResponse } from 'src/common/interface/api-response.interface';
 import { loginDto } from '../common/dto/login.dto';
@@ -6,6 +6,8 @@ import { LoginResponse } from './interface/login-response.interface';
 import { UserAgentRequest } from 'src/common/interface/user-agent-request.interface';
 import { RefreshTokenDto } from '../common/dto/refresh-token.dto';
 import { AccessTokenData } from '../common/interface/access-token-data.interface';
+import { RegisterDto } from './dto/register.dto';
+import { UnverifiedCustomerData } from './interface/unverified-customer-data.interface';
 
 @Controller({
   path: "customer-auth",
@@ -49,12 +51,34 @@ export class CustomerAuthController {
     }
   }
 
-  // @Post("register")
-  // @HttpCode(200)
-  // async register(): Promise<ApiResponse<>> {
-  //   try {
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
+  @Post("register")
+  @HttpCode(202)
+  async register(@Body() registerDto: RegisterDto): Promise<ApiResponse<UnverifiedCustomerData>> {
+    try {
+      const response = await this.customerAuthService.register(registerDto);
+      return {
+        statusCode: HttpStatus.ACCEPTED,
+        statusMessage: HttpStatus[202],
+        message: "Registration successful! Please check your email to verify your account.",
+        data: response
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  @Get("verify-email")
+  @HttpCode(200)
+  async verifyEmail(@Query("token") token: string): Promise<ApiResponse<null>> {
+    try {
+      const response = await this.customerAuthService.verifyEmail(token);
+      return {
+        statusCode: HttpStatus.OK,
+        statusMessage: HttpStatus[200],
+        message: "Email verified successfully. Your account is now active.",
+      }
+    } catch (e) {
+      throw e
+    }
+  }
 }
