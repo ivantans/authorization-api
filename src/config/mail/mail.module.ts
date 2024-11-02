@@ -8,15 +8,16 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         transport: {
-          host: configService.get<string>("MAIL_HOST"),
+          host: configService.get<string>("EMAIL_HOST"),
           auth: {
-            user: configService.get<string>("MAIL_USERNAME"),
-            pass: configService.get<string>("MAIL_PASS")
+            user: configService.get<string>("EMAIL_USERNAME"),
+            pass: configService.get<string>("EMAIL_PASSWORD")
           }
         }
-      })
-    })
+      }),
+      inject: [ConfigService]
+    }),
   ],
   exports: [MailerModule]
 })
-export class MailModule {}
+export class MailModule { }
