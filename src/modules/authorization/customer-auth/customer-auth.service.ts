@@ -27,7 +27,8 @@ export class CustomerAuthService {
     try {
       const customerData = await this.prisma.customer.findUnique({
         where: {
-          email: loginDto.email
+          email: loginDto.email,
+          emailStatus: "VERIFIED"
         },
         include: {
           customerRoles: {
