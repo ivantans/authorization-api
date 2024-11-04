@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { JwtConfigModule } from './config/jwt-config/jwt-config.module';
@@ -12,6 +12,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { ThrottlerConfigModule } from './config/throttling/throttler-config.module';
 import { MailerConfigModule } from './config/mail/mailer-config.module';
+import { AuthMiddleware } from './common/middleware/auth/auth.middleware';
 
 @Module({
   imports: [
@@ -31,4 +32,8 @@ import { MailerConfigModule } from './config/mail/mailer-config.module';
     useClass: ThrottlerGuard
   }],
 })
-export class AppModule { }
+export class AppModule implements NestModule { 
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware).forRoutes(AppController)
+  }
+}
