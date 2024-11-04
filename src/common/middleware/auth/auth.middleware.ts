@@ -23,7 +23,7 @@ export class AuthMiddleware implements NestMiddleware {
       const payload = await this.jwtService.verifyAsync(token);
       const accountType = payload.accountType;
 
-      const user = await this.findUserByTypeAndId(accountType, payload.sub);
+      const user = await this.findUserByTypeAndId(accountType, payload.sub, token);
       if (!user) {
         throw new UnauthorizedException('User not found');
       }
@@ -41,18 +41,19 @@ export class AuthMiddleware implements NestMiddleware {
     }
   }
 
-  private async findUserByTypeAndId(accountType: string, userId: number) {
+  private async findUserByTypeAndId(accountType: string, userId: number, accessToken: string) {
     if (accountType === 'CUSTOMER') {
       const customer = await this.prisma.customer.findUnique({
         where: { id: userId },
         include: {
+          customerSession: true,
           customerRoles: {
             include: { role: { select: { name: true } } },
           },
         },
       });
       if (!customer) return null;
-
+      if (customer.customerSession.accessToken !== accessToken) { return null }
       return {
         id: customer.id,
         email: customer.email,
@@ -64,12 +65,14 @@ export class AuthMiddleware implements NestMiddleware {
       const employee = await this.prisma.employee.findUnique({
         where: { id: userId },
         include: {
+          employeeSession: true,
           employeeRoles: {
             include: { role: { select: { name: true } } },
           },
         },
       });
       if (!employee) return null;
+      if (employee.employeeSession.accessToken !== accessToken) { return null }
 
       return {
         id: employee.id,
