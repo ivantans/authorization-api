@@ -83,3 +83,7 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+## Author
+
+Built by [Ivan Tanjaya Sutrisna](https://ivantans.id), a backend developer in Bandung, Indonesia. More projects and contact: [ivantans.id](https://ivantans.id).
